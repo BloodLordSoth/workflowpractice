@@ -24,5 +24,7 @@ jobs:
       - name: install dependencies
         run: npm install
 
-      - name: run tests
+      - name: test with env
+        env:
+          SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
         run: npm test
