@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake site login</title>
+    <style>
+        body {
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        #container {
+            margin-top: 20px;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: #f0f0f0;
+            box-shadow: 2px 2px 4px black;
+            border: 1px solid black;
+            width: 220px;
+            height: 320px;
+        }
+        header {
+            margin: 0 auto;
+            width: 100%;
+            height: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #000;
+        }
+        header h2{
+            color: white;
+            margin-left: 5px;
+            font-family: cursive;
+            font-size: 32px;
+        }
+        header a {
+            margin-right: 10px;
+            text-decoration: none;
+            color: white;
+            font-size: 20px;
+        }
+        header a:hover {
+            color: lightgreen;
+        }
+        label[for=username], label[for=password]{
+            margin-right: 90px;
+            margin-top: 10px;
+        }
+        #password, #username {
+            padding: 3px;
+            margin-top: 3px;
+        }
+        #btn1 {
+            margin-top: 20px;
+            padding: 3px;
+            height: 25px;
+            width: 74%;
+            border: none;
+            background: lightgreen;
+        }
+        #btn1:hover {
+            background: #0000;
+            border: 2px solid lightgreen;
+            cursor: pointer;
+        }
+        #container h2 {
+            font-weight: 5px;
+            font-size: 26px;
+        }
+        #container a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    
+    <header>
+        <h2>Fake site</h2>
+        <a href="./register.html">Register</a>
+    </header>
+
+    <main>
+        <div id="container">
+            <h2>Login</h2>
+            <label for="username">Username</label>
+            <input type="text" placeholder="Username" id="username" autocomplete="off"/>
+            <label for="password">Password</label>
+            <input type="password" placeholder="Password" id="password" autocomplete="off"/>
+            <button onclick="accountLogin()" id="btn1">Login</button>
+        </div>
+    </main>
+
+</body>
+</html>
+<script>
+    const success = document.getElementById('success')
+    const username = document.getElementById('username')
+    const password = document.getElementById('password')
+    
+    async function accountLogin(){
+        if (!username || !password) {
+            return
+        }
+
+        const res = await fetch('/login', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: username.value, password: password.value })
+        })
+
+        username.value = ''
+        password.value = ''
+
+        if (!res.ok){
+            window.alert(`Error connecting to the server ${res.status}`)
+            return
+        }
+
+        const data = await res.json()
+        const accessKey = localStorage.setItem('accessKey', data.accessKey)
+        window.location.href = './dashboard.html'
+    }
+</script>

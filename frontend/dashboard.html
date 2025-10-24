@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fake site dashboard</title>
+    <style>
+        body {
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        #container {
+            margin-top: 20px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            background: #cccccc;
+            border-top: 2px solid black;
+            border-bottom: 2px solid black;
+            width: fit-content;
+            max-width: 600px;
+            min-width: 320px;
+            height: 320px;
+        }
+        header {
+            margin: 0 auto;
+            width: 100%;
+            height: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #000;
+        }
+        header h2{
+            color: white;
+            margin-left: 5px;
+            font-family: cursive;
+            font-size: 32px;
+        }
+        header a {
+            margin-right: 10px;
+            text-decoration: none;
+            color: white;
+            font-size: 20px;
+        }
+        header a:hover {
+            color: lightgreen;
+        }
+        #box {
+            margin-top: -100px;
+            display: flex;
+            width: 100%;
+            background: #111;
+            padding: 5px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        #box h2 {
+            color: white;
+            font-family: monospace;
+            padding: 7px;
+            width: fit-content;
+            text-align: center;
+            border-radius: 30px;
+            margin-right: 40px;
+            border: 2px solid white;
+            background: #333;
+            text-shadow: 1px 1px 3px #111;
+            font-size: 36px;
+            height: 40px;
+        }
+        #box img {
+            margin-right: 20px;
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+        }
+        #imgfile {
+            border: 2px solid white;
+            padding: 3px;
+            border-radius: 10px;
+            background: #111;
+            color: white;
+            width: 180px;
+            margin-right: 250px;
+            margin-top: 5px;
+        }
+        #btn2 {
+            width: 80px;
+            background: lightgreen;
+            border: none;
+            box-shadow: 2px 2px 4px black;
+            height: 25px;
+            margin-right: 250px;
+            margin-top: 5px;
+            
+        }
+        #btn2:hover {
+            box-shadow: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    
+    <header>
+        <h2>Fake site</h2>
+        <a onclick="logout()" href="#">Logout</a>
+    </header>
+
+    <main>
+        <div id="container">
+            <div id="box">
+                <img id="profileimg"/>
+                <h2 id="user">Username</h2>
+            </div>
+            <input id="imgfile" type="file"/>
+            <button id="btn2">Upload</button>
+        </div>
+    </main>
+
+</body>
+</html>
+<script>
+    const profileimg = document.getElementById('profileimg')
+    const username = document.getElementById('user')
+    const image = document.getElementById('imgfile')
+    const upload = document.getElementById('btn2')
+    
+    const accessKey = localStorage.getItem('accessKey')
+
+    async function callUserData(){
+        const res = await fetch('/users', {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${accessKey}`}
+        })
+
+        if (res.status === 401 || res.status === 403){
+            logout()
+            return
+        }
+        
+        if (!res.ok){
+            return
+        }
+
+        const data = await res.json()
+        username.textContent = data.user
+
+        if (data.url === null){
+            profileimg.src = './assets/missing.png'    
+        } else {
+            profileimg.src = data.url
+        }
+    }
+    callUserData()
+
+    function logout(){
+        localStorage.removeItem('accessKey')
+        window.location.href = './index.html'
+    }
+
+    async function tokenCheck(){
+        const res = await fetch('/tokencheck', {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${accessKey}` }
+        })
+
+        if (!res.ok){
+            logout()
+        }
+    }
+    setInterval(() => {
+        tokenCheck()
+    }, 5000)
+
+    upload.addEventListener('click', async () => {
+        const formData = new FormData()
+        formData.append('image', image.files[0])
+
+        const res = await fetch('/upload', {
+            method: "POST",
+            headers: { 'Authorization': `Bearer ${accessKey}`},
+            body: formData
+        })
+
+        if (!res.ok){
+            window.alert('there was an issue')
+            console.log(res.status)
+            return
+        }
+
+        const data = await res.json()
+        profileimg.src = data.url
+    })
+</script>
