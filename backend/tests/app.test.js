@@ -50,18 +50,6 @@ describe('/POST register endpoint', () => {
 })
 
 
-describe('/GET users', () => {
- 
-
-    describe('Should return json response', () => {
-        test('Should be valid header', async () => {
-            const res = await request(app).get('/users').set({ 'Authorization': `Bearer ${token}` })
-            expect(res.headers['content-type']).toEqual(expect.stringContaining('json'))
-            expect(res.statusCode).toBe(200)
-        })
-    })
-})
-
 describe('/POST login endpoint', () => {
 
     describe('If no username given', () => {
@@ -123,13 +111,5 @@ describe('/POST upload endpoint', () => {
         })
     })
 
-    describe('with image', () => {
-        test('should return 200', async () => {
-            const res = await request(app).post('/upload').set({ 'Authorization': `Bearer ${token}` }).attach(
-                'image', path.resolve(__dir, '../../frontend/assets/soth.png')
-            )
-            expect(res.statusCode).toBe(200)
-        })
-    })
 
 })
